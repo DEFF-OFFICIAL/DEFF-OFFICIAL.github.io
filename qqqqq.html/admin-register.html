@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendaftaran Admin Baru</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            max-width: 400px;
+            width: 100%;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        label {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+            display: block;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #43A047;
+        }
+        .message {
+            color: green;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Daftarkan Admin Baru</h1>
+    <form id="adminForm">
+        <label for="name">Nama Admin:</label>
+        <input type="text" id="name" placeholder="Masukkan nama" required>
+
+        <label for="email">Email Admin:</label>
+        <input type="email" id="email" placeholder="Masukkan email" required>
+
+        <label for="password">Kata Sandi:</label>
+        <input type="password" id="password" placeholder="Masukkan kata sandi" required>
+
+        <button type="submit">Daftar Admin</button>
+
+        <div id="message" class="message"></div>
+    </form>
+</div>
+
+<script>
+    // Ambil nama Owner dari localStorage (jika ada)
+    const currentUser = JSON.parse(localStorage.getItem('currentUser')) || { name: 'Owner' };
+
+    // Fungsi untuk mencatat log aktivitas
+    function logActivity(accountName, action) {
+        let activityLogData = JSON.parse(localStorage.getItem('activityLogData')) || [];
+        const currentTime = new Date().getTime(); // Timestamp saat ini
+        const activity = {
+            accountName,
+            action,
+            timestamp: currentTime,
+            time: new Date().toLocaleString() // Simpan waktu aktivitas dalam format readable
+        };
+        activityLogData.unshift(activity); // Masukkan aktivitas baru di awal array (log terbaru di atas)
+        localStorage.setItem('activityLogData', JSON.stringify(activityLogData));
+    }
+
+    // Fungsi untuk menyimpan admin baru dan mencatat di log aktivitas
+    document.getElementById('adminForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        if (!name || !email || !password) {
+            alert('Semua field wajib diisi.');
+            return;
+        }
+
+        // Simpan data admin baru
+        let adminData = JSON.parse(localStorage.getItem('adminData')) || [];
+        const newAdmin = { 
+            id: Date.now(), // Menggunakan timestamp untuk membuat ID unik
+            name: name, 
+            email: email, 
+            password: password,
+            registeredAt: new Date().toLocaleString() 
+        };
+        adminData.push(newAdmin);
+        localStorage.setItem('adminData', JSON.stringify(adminData));
+
+        // Tampilkan pesan sukses
+        document.getElementById('message').textContent = 'Admin berhasil didaftarkan!';
+
+        // Catat pendaftaran admin ke log aktivitas
+        logActivity(currentUser.name, `Admin ${name} dengan email ${email} didaftarkan`);
+
+        // Kosongkan form
+        document.getElementById('adminForm').reset();
+    });
+</script>
+
+</body>
+</html>
