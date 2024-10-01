@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Halaman Owner</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .profile {
+            display: flex;
+            align-items: center;
+        }
+        .profile img {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+        .profile-name {
+            font-size: 16px;
+            color: white;
+            font-weight: 600;
+        }
+        .logout-btn {
+            background-color: #F44336;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: auto;
+        }
+        .logout-btn:hover {
+            background-color: #D32F2F;
+        }
+        .container {
+            max-width: 100%;
+            width: 100%;
+            box-sizing: border-box;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .table-container {
+            overflow-x: auto;
+            width: 100%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button:hover {
+            background-color: #43A047;
+        }
+        .btn-danger {
+            background-color: #F44336;
+        }
+        .btn-danger:hover {
+            background-color: #D32F2F;
+        }
+        .btn-clear-logs {
+            background-color: #FF9800;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            float: right;
+        }
+        .btn-clear-logs:hover {
+            background-color: #FB8C00;
+        }
+        @media only screen and (max-width: 600px) {
+            h1 {
+                font-size: 18px;
+            }
+            input, button {
+                font-size: 14px;
+                padding: 10px;
+            }
+            .container {
+                padding: 10px;
+            }
+            table, th, td {
+                font-size: 12px;
+            }
+            .btn-clear-logs {
+                float: none;
+                display: block;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="profile">
+        <img src="" id="profileImage" alt="Profile Image">
+        <span class="profile-name" id="profileName">Owner</span>
+    </div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+</header>
+
+<div class="container">
+    <h1>Daftar Admin</h1>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID Admin</th>
+                    <th>Nama</th>
+                    <th>Email</th>
+                    <th>Waktu Registrasi</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="adminTable">
+                <!-- Admin rows will be dynamically inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+    <h1>Log Aktivitas</h1>
+    <button class="btn-clear-logs" onclick="clearAllLogs()">Hapus Semua Log Aktivitas</button>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nama Akun</th>
+                    <th>Aksi</th>
+                    <th>Waktu</th>
+                </tr>
+            </thead>
+            <tbody id="activityLog">
+                <!-- Activity log will be dynamically inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+    <button onclick="window.location.href='admin-register.html'">Tambah Admin Baru</button>
+</div>
+
+<script>
+    // Ambil data Owner dari localStorage (jika ada)
+    const currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+
+    // Jika tidak ada pengguna yang login, arahkan ke halaman login
+    if (!currentUser) {
+        window.location.href = 'login.html'; // Pastikan halaman login ada di folder yang tepat
+    }
+
+    // Tampilkan gambar profil dan nama profil
+    document.getElementById('profileName').textContent = currentUser.name;
+    document.getElementById('profileImage').src = currentUser.profileImage || 'https://via.placeholder.com/50';
+
+    const DAYS_LIMIT = 100; // Batas waktu log dalam hari
+
+    // Fungsi logout
+    function logout() {
+        // Hapus data pengguna yang login dari localStorage
+        localStorage.removeItem('currentUser');
+
+        // Tambahkan sedikit delay untuk memastikan localStorage telah terhapus
+        setTimeout(function() {
+            // Arahkan kembali ke halaman login
+            window.location.href = 'login.html'; // Arahkan ke halaman login
+        }, 500); // 500ms delay untuk memastikan penghapusan selesai
+    }
+
+    // Fungsi untuk menghitung perbedaan waktu dalam hari
+    function calculateDaysDifference(oldTimestamp) {
+        const currentTime = new Date().getTime(); // Waktu saat ini dalam milidetik
+        const differenceInMilliseconds = currentTime - oldTimestamp;
+        return differenceInMilliseconds / (1000 * 60 * 60 * 24); // Konversi milidetik ke hari
+    }
+
+    // Hapus log yang berusia lebih dari 100 hari
+    function removeOldLogs() {
+        let activityLogData = JSON.parse(localStorage.getItem('activityLogData')) || [];
+        activityLogData = activityLogData.filter(log => {
+            const daysDifference = calculateDaysDifference(log.timestamp);
+            return daysDifference <= DAYS_LIMIT; // Simpan log yang masih dalam batas 100 hari
+        });
+        localStorage.setItem('activityLogData', JSON.stringify(activityLogData)); // Update log yang tersimpan
+    }
+
+    // Simpan aktivitas yang dilakukan oleh Owner atau Admin
+    function logActivity(accountName, action) {
+        let activityLogData = JSON.parse(localStorage.getItem('activityLogData')) || [];
+        const currentTime = new Date().getTime(); // Timestamp saat ini
+        const activity = {
+            accountName,
+            action,
+            timestamp: currentTime, // Simpan timestamp dari waktu aktivitas
+            time: new Date().toLocaleString() // Simpan waktu aktivitas dalam bentuk readable
+        };
+        activityLogData.unshift(activity); // Masukkan aktivitas baru di awal array (log terbaru di atas)
+        localStorage.setItem('activityLogData', JSON.stringify(activityLogData));
+        renderActivityLog(); // Render log langsung setelah tindakan
+    }
+
+    // Tampilkan log aktivitas
+    function renderActivityLog() {
+        const logBody = document.getElementById('activityLog');
+        logBody.innerHTML = ''; // Kosongkan log
+        let activityLogData = JSON.parse(localStorage.getItem('activityLogData')) || [];
+
+        // Hapus log yang lebih dari 100 hari
+        removeOldLogs();
+
+        // Muat log yang tersisa setelah pembersihan (log terbaru di atas)
+        activityLogData.forEach(log => {
+            const row = `
+                <tr>
+                    <td>${log.accountName}</td>
+                    <td>${log.action}</td>
+                    <td>${log.time}</td>
+                </tr>
+            `;
+            logBody.innerHTML += row;
+        });
+    }
+
+    // Hapus semua log aktivitas
+    function clearAllLogs() {
+        if (confirm('Apakah Anda yakin ingin menghapus semua log aktivitas?')) {
+            localStorage.removeItem('activityLogData');
+            renderActivityLog(); // Perbarui tampilan log aktivitas
+        }
+    }
+
+    // Simpan admin baru di localStorage
+    function addAdmin(name, email) {
+        let adminData = JSON.parse(localStorage.getItem('adminData')) || [];
+        const newAdmin = {
+            id: Date.now(), // Gunakan timestamp sebagai ID unik
+            name: name,
+            email: email,
+            registeredAt: new Date().toLocaleString()
+        };
+        adminData.push(newAdmin);
+        localStorage.setItem('adminData', JSON.stringify(adminData));
+        renderAdminTable();
+        logActivity(currentUser.name, `Admin ${name} dengan email ${email} ditambahkan`);
+    }
+
+    // Fungsi untuk menampilkan data admin di tabel
+    function renderAdminTable() {
+        const tableBody = document.getElementById('adminTable');
+        tableBody.innerHTML = ''; // Kosongkan tabel admin
+
+        let adminData = JSON.parse(localStorage.getItem('adminData')) || [];
+
+        adminData.forEach(admin => {
+            const row = `
+                <tr>
+                    <td>${admin.id}</td>
+                    <td>${admin.name}</td>
+                    <td>${admin.email}</td>
+                    <td>${admin.registeredAt}</td>
+                    <td>
+                        <button class="btn-danger" onclick="deleteAdmin(${admin.id}, '${admin.name}')">Hapus</button>
+                    </td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+    }
+
+    // Hapus admin dan catat aktivitasnya
+    function deleteAdmin(adminId, adminName) {
+        let adminData = JSON.parse(localStorage.getItem('adminData')) || [];
+        adminData = adminData.filter(admin => admin.id !== adminId);
+        localStorage.setItem('adminData', JSON.stringify(adminData));
+        renderAdminTable();
+        logActivity(currentUser.name, `Admin ${adminName} dihapus`);
+        alert('Admin berhasil dihapus.');
+    }
+
+    // Panggil fungsi untuk menampilkan tabel admin dan log aktivitas
+    renderAdminTable();
+    renderActivityLog();
+</script>
+
+</body>
+</html>
